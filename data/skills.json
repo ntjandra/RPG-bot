@@ -1,10 +1,10 @@
 {
-    "Maria": {
+    "maria": {
         "basic": {
             "scaling": 100,
-            "damageType": "magic",
+            "type": "magic",
             "effects": 
-                ["cost(name='Maria', resource='alchemy', value=-25)", "cost(name='Maria', resource='devotion', value=20)"]
+                ["cost(name='maria', resource='alchemy', value=-25)", "cost(name='maria', resource='devotion', value=20)"]
         }
     }
 }

@@ -7,6 +7,7 @@ import os
 from dotenv import load_dotenv
 from abilities import cast_ability
 from data.import_data import *
+from grammar import sentence
 
 # Load environment variables
 load_dotenv()
@@ -38,7 +39,7 @@ async def help(ctx, *argument):
         await ctx.send("```Cast a spell using a character's stats for scaling and additional effects. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
-                       "    !info Maria```")
+                       "    !cast Maria basic```")
         return
     return
 
@@ -48,17 +49,17 @@ async def help(ctx, *argument):
 async def info(ctx, *argument):
     if ctx.author == client.user:
         return
-    # Set Default. You can update this in grader.py
     if not argument:
         await ctx.send (
             "Error: Please specify a Character\n"
         )
     if len(argument) == 1:
         # Create embed
-        sheet = discord.Embed(title= argument[0] + " Sheet", description = "Combat Info")
+        character = argument[0].lower()
+        sheet = discord.Embed(title= sentence(f'{character} Sheet'), description = "Combat Info")
 
-        for field, val in characters[argument[0]].items():
-            sheet.add_field(name=field, value=val)
+        for field, val in characters[character].items():
+            sheet.add_field(name=sentence(field), value=val)
 
         # sheet.set_thumbnail(ctx.author.avatar_url)
         await ctx.send(embed=sheet)
@@ -69,17 +70,22 @@ async def info(ctx, *argument):
 async def cast(ctx, *argument):
     if ctx.author == client.user:
         return
-    # Set Default. You can update this in grader.py
     if not argument:
         await ctx.send ("Error: Supply a character and spell name\n")
         return
     if len(argument) == 2:
         # Cast the Spell
         # TODO: Error handling when Spell is not found.
-        message = argument[0] + " casted " + argument[1]
+
+        # Reformat to ignore case errors
+        character = argument[0].lower()
+        skill = argument[1].lower()
+
+        message = sentence(f'{character} casted {skill}')
         await ctx.send(message)
+
         # Results log the results of the spells, if any.
-        results = cast_ability(argument[0], argument[1])
+        results = cast_ability(character, skill)
         await ctx.send(results)
     return
 
