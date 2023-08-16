@@ -5,8 +5,8 @@ import requests
 import shutil
 import os
 from dotenv import load_dotenv
-from abilities import cast_spell
-from import_char import *
+from abilities import cast_ability
+from data.import_data import *
 
 # Load environment variables
 load_dotenv()
@@ -54,14 +54,10 @@ async def info(ctx, *argument):
             "Error: Please specify a Character\n"
         )
     if len(argument) == 1:
-        # Set character for lookup values
-        print(argument)
-
         # Create embed
         sheet = discord.Embed(title= argument[0] + " Sheet", description = "Combat Info")
 
-        print(character)
-        for field, val in character[argument[0]].items():
+        for field, val in characters[argument[0]].items():
             sheet.add_field(name=field, value=val)
 
         # sheet.set_thumbnail(ctx.author.avatar_url)
@@ -71,22 +67,20 @@ async def info(ctx, *argument):
 
 @client.command()
 async def cast(ctx, *argument):
-
     if ctx.author == client.user:
         return
     # Set Default. You can update this in grader.py
-    if not argument or len(argument) != 2:
+    if not argument:
         await ctx.send ("Error: Supply a character and spell name\n")
         return
     if len(argument) == 2:
-        # Set character for lookup values
-        print(argument[0], argument[1])
-
         # Cast the Spell
-        cast_spell(argument[0], argument[1])
         # TODO: Error handling when Spell is not found.
         message = argument[0] + " casted " + argument[1]
         await ctx.send(message)
+        # Results log the results of the spells, if any.
+        results = cast_ability(argument[0], argument[1])
+        await ctx.send(results)
     return
 
 client.run(os.getenv('DISCORD_TOKEN'))
