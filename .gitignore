@@ -1,0 +1,5 @@
+env
+.vim
+.env
+__pycache__/
+geckodriver.log

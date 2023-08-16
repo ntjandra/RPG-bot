@@ -1,0 +1,13 @@
+{ 
+    "Maria" : {
+        "health": 500, 
+        "alchemy": 500,
+        "devotion": 0,
+        "weaponPower": 0,
+        "spellPower": 50,
+        "armor": 10,
+        "spellResist": 0,
+        "healshieldPower": 0,
+        "dmgResist": 0
+    }
+}
