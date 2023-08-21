@@ -1,10 +1,16 @@
 {
     "maria": {
         "basic": {
-            "scaling": 100,
+            "scaling": 1.5,
             "type": "magic",
             "effects": 
                 ["cost(name='maria', resource='alchemy', value=-25)", "cost(name='maria', resource='devotion', value=20)"]
+        },
+        "heal": {
+            "scaling": 3,
+            "type": "support",
+            "effects": 
+                ["cost(name='maria', resource='alchemy', value=-25)", "cost(name='maria', resource='devotion', value=-10)"]
         }
     }
 }
