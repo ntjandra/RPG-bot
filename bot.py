@@ -13,6 +13,10 @@ from grammar import sentence
 load_dotenv()
 client = commands.Bot(command_prefix='!')
 
+# Generate the structure for saves.
+if not os.path.exists('saves'):
+   os.makedirs('saves')
+
 @client.event
 async def on_ready():
     print('ready')
@@ -27,7 +31,9 @@ async def help(ctx, *argument):
         await ctx.send("```Commands: \n"
                        "\n !info <characterName> Returns a character stats."
                        "\n !cast <characterName> <spellName> Cast a spell using a character's stats."
-                       "\n !help <command>  Displays detailed command info.```")
+                       "\n !help <command>  Displays detailed command info."
+                       "\n !save <characterName> <?slot> Save current info to load later."
+                       "\n !load <characterName> <?slot> Loads state from file.```")
         return
     if argument[0] == "info" and len(argument) == 1:
         await ctx.send("```Supply a character name and get back it's character sheet. Defaults combat stats only. \n"
@@ -41,10 +47,19 @@ async def help(ctx, *argument):
                        "    Lookup Characters: \n"
                        "    !cast Maria basic```")
         return
+    if argument[0] == "save" and len(argument) == 1:
+        await ctx.send("```Save a character's sheet. Max 3 save slots. \n"
+                       "Usage: \n"
+                       "    Lookup Characters: \n"
+                       "    !save Maria 1```")
+    if argument[0] == "load" and len(argument) == 1:
+        await ctx.send("```Load a character's sheet updating the values. Defaults to option 1. \n"
+                       "Usage: \n"
+                       "    Lookup Characters: \n"
+                       "    !save Maria 1```")
     return
 
 ### Info Command ###
-
 @client.command()
 async def info(ctx, *argument):
     if ctx.author == client.user:
@@ -65,7 +80,7 @@ async def info(ctx, *argument):
         await ctx.send(embed=sheet)
     return
 
-
+### Cast Command ###
 @client.command()
 async def cast(ctx, *argument):
     if ctx.author == client.user:
@@ -89,4 +104,43 @@ async def cast(ctx, *argument):
         await ctx.send(results)
     return
 
+### Save Command ###
+@client.command()
+async def save(ctx, *argument):
+    if not argument:
+        await ctx.send ("Error: Supply a character and number from 1 to 3 \n")
+        return
+    # TODO: Save entire party data into a file
+    # if len(argument) == 1:
+    #     save_party()
+
+    # Choose a specific character to save data on.
+    if len(argument) == 2:
+        await ctx.send("Saving... \n")
+        character = argument[0].lower()
+        message = sentence(save_player(character, argument[1]))
+        await ctx.send("Save Complete \n")
+        await ctx.send(message)
+    return 
+
+### Load Command ###
+@client.command()
+async def load(ctx, *argument):
+    if not argument:
+        await ctx.send ("Error: Supply a character and number from 1 to 3 \n")
+        return
+    # TODO: Load entire party data into the main file
+    # if len(argument) == 1:
+    #     save_party()
+
+    # Choose a specific character to load data for.
+    if len(argument) == 2:
+        await ctx.send("Loading... \n")
+        character = argument[0].lower()
+        message = sentence(load_player(character))
+        await ctx.send("Load Complete \n")
+        await ctx.send(message)
+    return 
+
 client.run(os.getenv('DISCORD_TOKEN'))
+
