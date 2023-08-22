@@ -1,33 +1,43 @@
+"""
+Initalize Data And Handling
+"""
+
+
 import json
 
-# Init all relevant files
-# Open JSON and returns dictionary
+
 def init_data(file):
-    f = open(file)
-    data = json.load(f)
-    f.close()
+    """
+    Init all relevant files
+    Open JSON and returns dictionary
+    """
+    with open(file,encoding='utf-8') as f:
+        data = json.load(f)
     return data
 
 # Init dicts to store rpg sheet data.
 characters = init_data('data/characters.json')
 skills = init_data('data/skills.json')
 
-# Overwrite previous quicksaves in /data.
+
 def init_party():
-    save_file = f'data/characters.json'
+    """
+    Overwrite previous quicksaves in /data.
+    """
+    save_file = 'data/characters.json'
 
-    with open (save_file, "w") as outfile:
-        json.dump(characters, outfile, indent = 4) 
+    with open (save_file, "w",encoding='utf-8') as outfile:
+        json.dump(characters, outfile, indent = 4)
 
-    log = f'All characters have been saved and updated.'
+    log = 'All characters have been saved and updated.'
     return log
 
 # Converts existing characters dict into a file as a JSON
 def save_player(character, slot=1):
     # Stores existing (local) dict into a temp file
     save_file = f'saves/{character}-{slot}.json'
-    with open (save_file, "w") as outfile:
-        json.dump(characters[character], outfile, indent = 4) 
+    with open (save_file, "w",encoding='utf-8') as outfile:
+        json.dump(characters[character], outfile, indent = 4)
 
     log = f'Saved! Load with `!load {character} {slot}.`'
     return log
@@ -35,10 +45,9 @@ def save_player(character, slot=1):
 # Loads a JSON formatted Sheet into /data and reinits it.
 def load_player(character, slot=1):
     file = f'saves/{character}-{slot}.json'
-    f = open(file)
-    data = json.load(f)
-    f.close()
-    
+    with open(file, encoding='utf-8') as f:
+        data = json.load(f)
+
     # Map through the data to fill the characters.json values
     characters[character] = data
 

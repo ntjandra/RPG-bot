@@ -1,12 +1,12 @@
-from discord.ext import commands
-import asyncio
-import discord
-import requests
-import shutil
+"""
+Main RBG BOT File 
+"""
 import os
+import discord
+from discord.ext import commands
 from dotenv import load_dotenv
 from abilities import cast_ability
-from data.import_data import *
+from data.import_data import init_party, save_player, load_player, characters
 from grammar import sentence
 
 # Load environment variables
@@ -15,17 +15,27 @@ client = commands.Bot(command_prefix='!')
 
 # Generate the structure for saves.
 if not os.path.exists('saves'):
-   os.makedirs('saves')
+    os.makedirs('saves')
+
 
 @client.event
 async def on_ready():
+    """
+    Event To When Bot Is Ready
+    """
     print('ready')
+
 
 client.remove_command('help')
 
+
 ### Command List ###~
+
 @client.command()
 async def help(ctx, *argument):
+    """
+    Help Command
+    """
     print('help')
     if not argument:
         await ctx.send("```Commands: \n"
@@ -36,7 +46,8 @@ async def help(ctx, *argument):
                        "\n !load <characterName> <?slot> Loads state from file.```")
         return
     if argument[0] == "info" and len(argument) == 1:
-        await ctx.send("```Supply a character name and get back it's character sheet. Defaults combat stats only. \n"
+        await ctx.send("```Supply a character name and get back it's character sheet."
+                       "Defaults combat stats only. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !info Maria```")
@@ -59,19 +70,22 @@ async def help(ctx, *argument):
                        "    !save Maria 1```")
     return
 
-### Info Command ###
+
 @client.command()
 async def info(ctx, *argument):
+    """
+    Info Command About a Character
+    """
     if ctx.author == client.user:
         return
     if not argument:
-        await ctx.send (
+        await ctx.send(
             "Error: Please specify a Character\n"
         )
     if len(argument) == 1:
         # Create embed
         character = argument[0].lower()
-        sheet = discord.Embed(title= sentence(f'{character} Sheet'), description = "Combat Info")
+        sheet = discord.Embed(title=sentence(f'{character} Sheet'), description="Combat Info")
 
         for field, val in characters[character].items():
             sheet.add_field(name=sentence(field), value=val)
@@ -80,13 +94,16 @@ async def info(ctx, *argument):
         await ctx.send(embed=sheet)
     return
 
-### Cast Command ###
+
 @client.command()
 async def cast(ctx, *argument):
+    """
+    Cast Command
+    """
     if ctx.author == client.user:
         return
     if not argument:
-        await ctx.send ("Error: Supply a character and spell name\n")
+        await ctx.send("Error: Supply a character and spell name\n")
         return
     if len(argument) == 2:
         # Cast the Spell
@@ -104,11 +121,14 @@ async def cast(ctx, *argument):
         await ctx.send(results)
     return
 
-### Save Command ###
+
 @client.command()
 async def save(ctx, *argument):
+    """
+    Save Command
+    """
     if not argument:
-        await ctx.send ("Error: Supply a character to save on. \n")
+        await ctx.send("Error: Supply a character to save on. \n")
         return
     # Choose a specific character to save data on.
     if len(argument) == 2:
@@ -117,13 +137,16 @@ async def save(ctx, *argument):
         message = sentence(save_player(character, argument[1]))
         await ctx.send("Save Complete \n")
         await ctx.send(message)
-    return 
+    return
 
-### Load Command ###
+
 @client.command()
 async def load(ctx, *argument):
+    """
+    Load Command
+    """
     if not argument:
-        await ctx.send ("Error: Supply a character and number from 1 to 3 \n")
+        await ctx.send("Error: Supply a character and number from 1 to 3 \n")
         return
     # Choose a specific character to load data for.
     if len(argument) == 2:
@@ -132,14 +155,18 @@ async def load(ctx, *argument):
         message = sentence(load_player(character, argument[1]))
         await ctx.send("Load Complete \n")
         await ctx.send(message)
-    return 
+    return
 
-### Quicksave Command ###
+
 @client.command()
 async def quicksave(ctx, *argument):
+    """
+    Quicksave Command
+    """
     if not argument:
         message = init_party()
         await ctx.send(message)
     return
+
 
 client.run(os.getenv('DISCORD_TOKEN'))
