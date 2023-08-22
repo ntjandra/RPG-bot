@@ -29,8 +29,6 @@ async def on_ready():
 client.remove_command('help')
 
 
-""" Command List """
-
 @client.command()
 async def help(ctx, *argument):
     """

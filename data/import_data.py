@@ -11,9 +11,10 @@ def init_data(file):
     Init all relevant files
     Open JSON and returns dictionary
     """
-    with open(file,encoding='utf-8') as f:
+    with open(file, encoding='utf-8') as f:
         data = json.load(f)
     return data
+
 
 def init_party():
     """
@@ -27,6 +28,7 @@ def init_party():
     log = 'All characters have been saved and updated.'
     return log
 
+
 def save_player(character, slot=1):
     """
     Converts existing characters dict into a file as a JSON.
@@ -38,6 +40,7 @@ def save_player(character, slot=1):
 
     log = f'Saved! Load with `!load {character} {slot}.`'
     return log
+
 
 def load_player(character, slot=1):
     """
@@ -51,7 +54,7 @@ def load_player(character, slot=1):
     log = f'{character} has been loaded from save slot {slot}.'
     return log
 
+
 # Init dicts to store rpg sheet data.
 characters = init_data('data/characters.json')
 skills = init_data('data/skills.json')
-
