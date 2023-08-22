@@ -5,7 +5,7 @@ import random
 import ast
 import logging
 from grammar import sentence
-from data.import_data import characters , skills
+from data.import_data import characters, skills
 
 
 # Update Character Sheet (Resets on bot restart)
@@ -36,7 +36,7 @@ def damage(power, scale, multiplier=1):
     """
     # Return Character's Damage Dealt.
     total = power * scale * multiplier
-    crit = random.randrange(0, 20) == 1 # 5% chance
+    crit = random.randrange(0, 20) == 1  # 5% chance
     print("Crit:", crit)
     print(power, scale, multiplier)
     return (total * 1.5) if crit else total
