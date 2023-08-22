@@ -1,5 +1,5 @@
 """
-Main RBG BOT File 
+Main RBG BOT File
 """
 import os
 import discord
@@ -29,7 +29,8 @@ async def on_ready():
 client.remove_command('help')
 
 
-### Command List ###~
+""" Command List """
+
 @client.command()
 async def help(ctx, *argument):
     """
