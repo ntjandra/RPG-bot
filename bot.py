@@ -108,12 +108,8 @@ async def cast(ctx, *argument):
 @client.command()
 async def save(ctx, *argument):
     if not argument:
-        await ctx.send ("Error: Supply a character and number from 1 to 3 \n")
+        await ctx.send ("Error: Supply a character to save on. \n")
         return
-    # TODO: Save entire party data into a file
-    # if len(argument) == 1:
-    #     save_party()
-
     # Choose a specific character to save data on.
     if len(argument) == 2:
         await ctx.send("Saving... \n")
@@ -129,18 +125,21 @@ async def load(ctx, *argument):
     if not argument:
         await ctx.send ("Error: Supply a character and number from 1 to 3 \n")
         return
-    # TODO: Load entire party data into the main file
-    # if len(argument) == 1:
-    #     save_party()
-
     # Choose a specific character to load data for.
     if len(argument) == 2:
         await ctx.send("Loading... \n")
         character = argument[0].lower()
-        message = sentence(load_player(character))
+        message = sentence(load_player(character, argument[1]))
         await ctx.send("Load Complete \n")
         await ctx.send(message)
     return 
 
-client.run(os.getenv('DISCORD_TOKEN'))
+### Quicksave Command ###
+@client.command()
+async def quicksave(ctx, *argument):
+    if not argument:
+        message = init_party()
+        await ctx.send(message)
+    return
 
+client.run(os.getenv('DISCORD_TOKEN'))

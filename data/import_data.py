@@ -12,11 +12,19 @@ def init_data(file):
 characters = init_data('data/characters.json')
 skills = init_data('data/skills.json')
 
+# Overwrite previous quicksaves in /data.
+def init_party():
+    save_file = f'data/characters.json'
+
+    with open (save_file, "w") as outfile:
+        json.dump(characters, outfile, indent = 4) 
+
+    log = f'All characters have been saved and updated.'
+    return log
 
 # Converts existing characters dict into a file as a JSON
 def save_player(character, slot=1):
     # Stores existing (local) dict into a temp file
-    print("saving")
     save_file = f'saves/{character}-{slot}.json'
     with open (save_file, "w") as outfile:
         json.dump(characters[character], outfile, indent = 4) 
