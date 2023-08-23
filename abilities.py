@@ -2,7 +2,6 @@
 Abilities module handle Abilities Character
 """
 import random
-import ast
 import logging
 from grammar import sentence
 from data.import_data import characters, skills
@@ -59,7 +58,7 @@ def apply(character, skill):
         val = restore(character["spell_power"], skill["scaling"], character["heal_shield_mult"])
         log = sentence(f'Support for {str(val)}\n')
     elif skill["type"] == "misc":
-        log = sentence(f'')
+        log = sentence('')
     else:
         return "Error"
     return log
@@ -91,12 +90,11 @@ def level_scale(level):
 
 def transform(character):
     """
-    Transform function for characters. Changes certain character's base stats. 
+    Transform function for characters. Changes certain character's base stats.
     """
     player = characters[character]
     if character == "shai":
         if not player["is_transformed"]:
-            # 
             player["spell_resist"] += 10 * level_scale(player["level"]) - 10
             player["weapon_power"] = 65 * level_scale(player["level"])
             player["is_transformed"] = True
@@ -105,6 +103,7 @@ def transform(character):
             player["spell_resist"] = characters["shai_human"]["spell_resist"]
             player["weapon_power"] = characters["shai_human"]["weapon_power"]
             return "Shai'Rei returned to human form."
+
 
 # Run through the effects of the skill.
 def cast_ability(character, ability, logging_enabled=False):
