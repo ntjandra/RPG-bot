@@ -19,6 +19,20 @@ def cost(name, resource="alchemy", value=0):
     return log
 
 
+def deal_pain(name, damage, damage_type="true"):
+    """
+    Calculates damage taken based on character resistances to type.
+    If the type is not listed, there are no resistances. (i.e holy)
+    Damage is calculated as a flat reduction based on resistances.
+    """
+    if damage_type == "magic":
+        damage -= characters[name]["spell_resist"]
+    if damage_type == "weapon":
+        damage -= characters[name]["armor"]
+    log = sentence(f'{name} has taken {damage} {damage_type} damage. \n')
+    return log
+
+
 def restore(power, scale, multiplier=1):
     """
     Uses Character's Modifiers to restore health. Doesn't crit.

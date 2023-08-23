@@ -5,7 +5,7 @@ import os
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-from abilities import cast_ability
+from abilities import cast_ability, deal_pain
 from data.import_data import init_party, save_player, load_player, characters
 from grammar import sentence
 
@@ -39,6 +39,7 @@ async def help(ctx, *argument):
         await ctx.send("```Commands: \n"
                        "\n !info <characterName> Returns a character stats."
                        "\n !cast <characterName> <spellName> Cast a spell using a character's stats."
+                       "\n !pain <characterName> <damage> <damageType> Calculate damage taken."
                        "\n !help <command>  Displays detailed command info."
                        "\n !save <characterName> <?slot> Save current info to load later."
                        "\n !load <characterName> <?slot> Loads state from file.```")
@@ -56,6 +57,12 @@ async def help(ctx, *argument):
                        "    Lookup Characters: \n"
                        "    !cast Maria basic```")
         return
+    if argument[0] == "pain" and len(argument) == 1:
+        await ctx.send("```Calculate damage taken by a character. Requires character, damage number, and damage type. \n"
+                       "Usage: \n"
+                       "    Lookup Characters: \n"
+                       "    !pain Maria 200 magic```")
+        return
     if argument[0] == "save" and len(argument) == 1:
         await ctx.send("```Save a character's sheet. Max 3 save slots. \n"
                        "Usage: \n"
@@ -65,7 +72,7 @@ async def help(ctx, *argument):
         await ctx.send("```Load a character's sheet updating the values. Defaults to option 1. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
-                       "    !save Maria 1```")
+                       "    !load Maria 1```")
     return
 
 
@@ -116,6 +123,27 @@ async def cast(ctx, *argument):
 
         # Results log the results of the spells, if any.
         results = cast_ability(character, skill)
+        await ctx.send(results)
+    return
+
+
+@client.command()
+async def pain(ctx, *argument):
+    """
+    Pain Command
+    """
+    if ctx.author == client.user:
+        return
+    if not argument:
+        await ctx.send("Error: Supply a character, damage number, and damage type \n")
+        return
+    if len(argument) == 3:
+        # Reformat to ignore case errors
+        character = argument[0].lower()
+        dmg = argument[1].lower()
+        dmg_type = argument[2].lower()
+        # Results log the results of the damage taken.
+        results = deal_pain(character, int(dmg), dmg_type)
         await ctx.send(results)
     return
 
