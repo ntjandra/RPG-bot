@@ -10,7 +10,7 @@ from data.import_data import characters, skills
 
 # Update Character Sheet (Resets on bot restart)
 
-# Adjust character resource values
+
 def cost(name, resource="alchemy", value=0):
     """
     Adjust Character Resource Values
@@ -58,10 +58,53 @@ def apply(character, skill):
         # Create a shield or heal target.
         val = restore(character["spell_power"], skill["scaling"], character["heal_shield_mult"])
         log = sentence(f'Support for {str(val)}\n')
+    elif skill["type"] == "misc":
+        log = sentence(f'')
     else:
         return "Error"
     return log
 
+
+def level_scale(level):
+    """
+    Inputs character level and outputs level scaling
+    Level 0: 1
+    Levels 1-10: Adds 0.2 for each level past previous statement
+    Levels 11-20: Adds 0.25 for each level past previous statement
+    Levels 21-30: Adds 0.3 for each level past previous statement
+    Levels 31-40: Adds 0.35 for each level past previous statement
+    Levels 41-50: Adds 0.4 for each level past previous statement
+    Level 50 is max
+    """
+    depth = level / 10
+    if depth > 4:
+        return 1 + (0.2 * 10) + (0.25 * (level - 10)) + (0.3 * (level - 20)) + (0.35 * (level - 30)) + (0.4 * (level - 40))
+    elif depth > 3:
+        return 1 + (0.2 * 10) + (0.25 * (level - 10)) + (0.3 * (level - 20)) + (0.35 * (level - 30))
+    elif depth > 2:
+        return 1 + (0.2 * 10) + (0.25 * (level - 10)) + (0.3 * (level - 20))
+    elif depth > 1:
+        return 1 + (0.2 * 10) + (0.25 * (level - 10))
+    else:
+        return 1 + (0.2 * level)
+
+
+def transform(character):
+    """
+    Transform function for characters. Changes certain character's base stats. 
+    """
+    player = characters[character]
+    if character == "shai":
+        if not player["is_transformed"]:
+            # 
+            player["spell_resist"] += 10 * level_scale(player["level"]) - 10
+            player["weapon_power"] = 65 * level_scale(player["level"])
+            player["is_transformed"] = True
+            return "Shai'Rei transformed to fox form."
+        else:
+            player["spell_resist"] = characters["shai_human"]["spell_resist"]
+            player["weapon_power"] = characters["shai_human"]["weapon_power"]
+            return "Shai'Rei returned to human form."
 
 # Run through the effects of the skill.
 def cast_ability(character, ability, logging_enabled=False):
@@ -74,7 +117,7 @@ def cast_ability(character, ability, logging_enabled=False):
 
     # Initial Resource costs
     for i, effect in enumerate(skill["effects"]):
-        msg += f'{str(i)}. {sentence(ast.literal_eval(effect))}'
+        msg += f'{str(i)}. {sentence(eval(effect))}'
 
     # If a character can't pay the cost, then return without applying effects.
 
