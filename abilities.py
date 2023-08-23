@@ -20,7 +20,7 @@ def cost(name, resource="alchemy", value=0):
 
 
 def deal_pain(name, damage, damage_type="true"):
-    """ 
+    """
     Calculates damage taken based on character resistances to type.
     If the type is not listed, there are no resistances. (i.e holy)
     Damage is calculated as a flat reduction based on resistances.
