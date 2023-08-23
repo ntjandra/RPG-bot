@@ -12,5 +12,24 @@
         "spell_mult": 1.1,
         "weapon_mult": 1,
         "dmg_resist": 0
+    },
+    "shai": {
+        "level": 17,
+        "health": 1836,
+        "alchemy": 650,
+        "is_transformed": false,
+        "weapon_power": 0,
+        "spell_power": 190,
+        "armor": 60,
+        "spell_resist": 10,
+        "shield": 0,
+        "heal_shield_mult": 1.05,
+        "spell_mult": 1.2,
+        "weapon_mult": 1.07,
+        "dmg_resist": 0
+    },
+    "shai_human": {
+        "spell_resist": 10,
+        "weapon_power": 0
     }
 }

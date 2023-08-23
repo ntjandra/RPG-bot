@@ -12,5 +12,18 @@
             "effects": 
                 ["cost(name='maria', resource='alchemy', value=-25)", "cost(name='maria', resource='devotion', value=-10)"]
         }
+    },
+    "shai": {
+        "basic": {
+            "scaling": 0.5,
+            "type": "magic",
+            "effects":
+                []
+        },
+        "transform": {
+            "type": "misc",
+            "effects":
+                ["transform('shai')"]
+        }
     }
 }
