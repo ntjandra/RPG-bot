@@ -3,6 +3,7 @@ Main RBG BOT File
 """
 import os
 import discord
+from discord import app_commands
 from discord.ext import commands
 from dotenv import load_dotenv
 from abilities import cast_ability, deal_pain
@@ -11,8 +12,19 @@ from grammar import sentence
 
 # Load environment variables
 load_dotenv()
-client = commands.Bot(command_prefix='!')
 
+
+"""
+Define Client (Bot) Parameters
+Intents are permissions the bot should have. Err on the side of less.
+Client is used to define the bot and configure it's event listeners.
+Tree stores the commands to send over to the Discord shortcut.
+Notes: Use mentions, /, and ! as the prefixes. Intents are now required in the latest version.
+"""
+intents = discord.Intents.default()
+intents.members = True
+intents.message_content = True 
+client = commands.Bot(command_prefix=commands.when_mentioned_or('!','/'), intents=intents)
 # Generate the structure for saves.
 if not os.path.exists('saves'):
     os.makedirs('saves')
@@ -21,13 +33,19 @@ if not os.path.exists('saves'):
 @client.event
 async def on_ready():
     """
-    Event To When Bot Is Ready
+    Bot Intializer: Set the slash commands and sync Commands to the Discord shortcut menu
+    If the tree isn't built it won't sync any commands.
     """
-    print('ready')
-
+    synced = await client.tree.sync()
+    print(f'{str(len(synced))} Commands Synced')
 
 client.remove_command('help')
 
+
+@client.tree.command(name="shutdown", description="Turns off the bot.")
+async def shutdown(Interaction: discord.Interaction):
+    await Interaction.response.send_message(content="Shutting Down")
+    await client.close()
 
 @client.command()
 async def help(ctx, *argument):
