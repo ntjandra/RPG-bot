@@ -44,7 +44,7 @@ client.remove_command('help')
 async def sync(ctx):
     """
     Queue up Discord slash commands sync. Make take up to an hour.
-    Optional: Fill in Sync with your server. guild=discord.Object(id={SERVER_ID}
+    Optional: Fill in Sync with your server. guild=discord.Object(id={os.getenv('DISCORD_TOKEN')})
     """
     synced = await client.tree.sync()
     log = f'{str(len(synced))} Commands Synced'
@@ -59,7 +59,7 @@ async def shutdown(Interaction: discord.Interaction):
 
 
 @client.tree.command(name='help', description="Lists help info for commands.")
-async def help(Interaction: discord.Interaction, bot_command: str="info"):
+async def help(Interaction: discord.Interaction, bot_command: str=None):
     # TODO: Refactor for app_commands.choices 
     """
     Help Command
@@ -74,31 +74,31 @@ async def help(Interaction: discord.Interaction, bot_command: str="info"):
                        "\n !save <characterName> <?slot> Save current info to load later."
                        "\n !load <characterName> <?slot> Loads state from file.```")
         return
-    if bot_command == "info" and len(argument) == 1:
+    if bot_command == "info":
         await Interaction.response.send_message(content="```Supply a character name and get back it's character sheet."
                        "Defaults combat stats only. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !info Maria```")
         return
-    if bot_command == "cast" and len(argument) == 1:
+    if bot_command == "cast":
         await Interaction.response.send_message(content="```Cast a spell using a character's stats for scaling and additional effects. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !cast Maria basic```")
         return
-    if bot_command == "pain" and len(argument) == 1:
+    if bot_command == "pain":
         await Interaction.response.send_message(content="```Calculate damage taken by a character. Requires character, damage number, and damage type. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !pain Maria 200 magic```")
         return
-    if bot_command == "save" and len(argument) == 1:
+    if bot_command == "save":
         await Interaction.response.send_message(content="```Save a character's sheet. Max 3 save slots. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !save Maria 1```")
-    if bot_command == "load" and len(argument) == 1:
+    if bot_command == "load":
         await Interaction.response.send_message(content="```Load a character's sheet updating the values. Defaults to option 1. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
@@ -106,27 +106,25 @@ async def help(Interaction: discord.Interaction, bot_command: str="info"):
     return
 
 
-@client.command()
-async def info(ctx, *argument):
+@client.tree.command(name="info", description="Fetches the character's sheet and displays it in an embed message.")
+async def info(Interaction: discord.Interaction, character: str):
     """
-    Info Command About a Character
+    Command for Character info
     """
-    if ctx.author == client.user:
-        return
-    if not argument:
+    if not character:
         await ctx.send(
             "Error: Please specify a Character\n"
         )
-    if len(argument) == 1:
+    else:
         # Create embed
-        character = argument[0].lower()
+        character = character.lower()
         sheet = discord.Embed(title=sentence(f'{character} Sheet'), description="Combat Info")
 
         for field, val in characters[character].items():
             sheet.add_field(name=sentence(field), value=val)
 
         # sheet.set_thumbnail(ctx.author.avatar_url)
-        await ctx.send(embed=sheet)
+        await Interaction.response.send_message(embed=sheet)
     return
 
 
