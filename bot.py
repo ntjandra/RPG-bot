@@ -52,11 +52,6 @@ async def sync(ctx):
     await ctx.send(log)
     return
 
-@client.tree.command(name="shutdown", description="Turns off the bot.")
-async def shutdown(Interaction: discord.Interaction):
-    await ctx.send("Shutting Down")
-    await client.close()
-
 
 @client.hybrid_command(name='help', description="Lists help info for commands.")
 async def help(ctx, bot_command: str=None):
@@ -65,6 +60,8 @@ async def help(ctx, bot_command: str=None):
     Help Command
     """
     print('help')
+    if ctx.author == client.user:
+        return
     if not bot_command:
         await ctx.send(content="```Commands: \n"
                        "\n !info <characterName> Returns a character stats."
@@ -111,6 +108,8 @@ async def info(ctx, character: str):
     """
     Command for Character info
     """
+    if ctx.author == client.user:
+        return
     if not character:
         await ctx.send("Error: Please specify a Character\n")
     else:
@@ -173,50 +172,54 @@ async def pain(ctx, character=None, dmg=None, dmg_type=None):
     return
 
 
-@client.command()
-async def save(ctx, *argument):
+@client.hybrid_command()
+async def save(ctx, character, slot=1):
     """
     Save Command
     """
-    if not argument:
+    if ctx.author == client.user:
+        return
+    if not character:
         await ctx.send("Error: Supply a character to save on. \n")
         return
     # Choose a specific character to save data on.
-    if len(argument) == 2:
+    else:
         await ctx.send("Saving... \n")
-        character = argument[0].lower()
-        message = sentence(save_player(character, argument[1]))
+        character = character.lower()
+        message = sentence(save_player(character, slot))
         await ctx.send("Save Complete \n")
         await ctx.send(message)
     return
 
 
-@client.command()
-async def load(ctx, *argument):
+@client.hybrid_command()
+async def load(ctx, character, slot=1):
     """
     Load Command
     """
-    if not argument:
-        await ctx.send("Error: Supply a character and number from 1 to 3 \n")
+    if ctx.author == client.user:
+        return
+    if not character:
+        await ctx.send("Error: Supply a character slot to load from \n")
         return
     # Choose a specific character to load data for.
-    if len(argument) == 2:
+    else:
         await ctx.send("Loading... \n")
-        character = argument[0].lower()
-        message = sentence(load_player(character, argument[1]))
-        await ctx.send("Load Complete \n")
+        character = character.lower()
+        message = sentence(load_player(character, slot))
         await ctx.send(message)
     return
 
 
-@client.command()
-async def quicksave(ctx, *argument):
+@client.hybrid_command()
+async def quicksave(ctx):
     """
     Quicksave Command
     """
-    if not argument:
-        message = init_party()
-        await ctx.send(message)
+    if ctx.author == client.user:
+        return
+    message = init_party()
+    await ctx.send(message)
     return
 
 
