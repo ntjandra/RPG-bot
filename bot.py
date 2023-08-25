@@ -40,7 +40,7 @@ async def on_ready():
 client.remove_command('help')
 
 
-@client.command()
+@client.hybrid_command(description="Queue up Discord slash commands sync. Make take up to an hour.")
 async def sync(ctx):
     """
     Queue up Discord slash commands sync. Make take up to an hour.
@@ -54,19 +54,19 @@ async def sync(ctx):
 
 @client.tree.command(name="shutdown", description="Turns off the bot.")
 async def shutdown(Interaction: discord.Interaction):
-    await Interaction.response.send_message(content="Shutting Down")
+    await ctx.send("Shutting Down")
     await client.close()
 
 
-@client.tree.command(name='help', description="Lists help info for commands.")
-async def help(Interaction: discord.Interaction, bot_command: str=None):
+@client.hybrid_command(name='help', description="Lists help info for commands.")
+async def help(ctx, bot_command: str=None):
     # TODO: Refactor for app_commands.choices 
     """
     Help Command
     """
     print('help')
     if not bot_command:
-        await Interaction.response.send_message(content="```Commands: \n"
+        await ctx.send(content="```Commands: \n"
                        "\n !info <characterName> Returns a character stats."
                        "\n !cast <characterName> <spellName> Cast a spell using a character's stats."
                        "\n !pain <characterName> <damage> <damageType> Calculate damage taken."
@@ -75,46 +75,44 @@ async def help(Interaction: discord.Interaction, bot_command: str=None):
                        "\n !load <characterName> <?slot> Loads state from file.```")
         return
     if bot_command == "info":
-        await Interaction.response.send_message(content="```Supply a character name and get back it's character sheet."
+        await ctx.send(content="```Supply a character name and get back it's character sheet."
                        "Defaults combat stats only. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !info Maria```")
         return
     if bot_command == "cast":
-        await Interaction.response.send_message(content="```Cast a spell using a character's stats for scaling and additional effects. \n"
+        await ctx.send("```Cast a spell using a character's stats for scaling and additional effects. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !cast Maria basic```")
         return
     if bot_command == "pain":
-        await Interaction.response.send_message(content="```Calculate damage taken by a character. Requires character, damage number, and damage type. \n"
+        await ctx.send("```Calculate damage taken by a character. Requires character, damage number, and damage type. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !pain Maria 200 magic```")
         return
     if bot_command == "save":
-        await Interaction.response.send_message(content="```Save a character's sheet. Max 3 save slots. \n"
+        await ctx.send("```Save a character's sheet. Max 3 save slots. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !save Maria 1```")
     if bot_command == "load":
-        await Interaction.response.send_message(content="```Load a character's sheet updating the values. Defaults to option 1. \n"
+        await ctx.send("```Load a character's sheet updating the values. Defaults to option 1. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !load Maria 1```")
     return
 
 
-@client.tree.command(name="info", description="Fetches the character's sheet and displays it in an embed message.")
-async def info(Interaction: discord.Interaction, character: str):
+@client.hybrid_command(description="Fetches the character's sheet and displays it in an embed message.")
+async def info(ctx, character: str):
     """
     Command for Character info
     """
     if not character:
-        await ctx.send(
-            "Error: Please specify a Character\n"
-        )
+        await ctx.send("Error: Please specify a Character\n")
     else:
         # Create embed
         character = character.lower()
@@ -124,27 +122,26 @@ async def info(Interaction: discord.Interaction, character: str):
             sheet.add_field(name=sentence(field), value=val)
 
         # sheet.set_thumbnail(ctx.author.avatar_url)
-        await Interaction.response.send_message(embed=sheet)
+        await ctx.send(embed=sheet)
     return
 
-
-@client.command()
-async def cast(ctx, *argument):
+@client.hybrid_command(description="Casts a skill using a character's stats for calculating raw damage.")
+async def cast(ctx, character, skill):
     """
     Cast Command
     """
     if ctx.author == client.user:
         return
-    if not argument:
+    if not character or not skill:
         await ctx.send("Error: Supply a character and spell name\n")
         return
-    if len(argument) == 2:
+    else:
         # Cast the Spell
         # TODO: Error handling when Spell is not found.
 
         # Reformat to ignore case errors
-        character = argument[0].lower()
-        skill = argument[1].lower()
+        character = character.lower()
+        skill = skill.lower()
 
         message = sentence(f'{character} casted {skill}')
         await ctx.send(message)
@@ -155,21 +152,21 @@ async def cast(ctx, *argument):
     return
 
 
-@client.command()
-async def pain(ctx, *argument):
+@client.hybrid_command(description="Calculates damage taken for a character based on their resistances.")
+async def pain(ctx, character=None, dmg=None, dmg_type=None):
     """
     Pain Command
     """
     if ctx.author == client.user:
         return
-    if not argument:
+    if not (character and dmg and dmg_type):
         await ctx.send("Error: Supply a character, damage number, and damage type \n")
         return
-    if len(argument) == 3:
+    else:
         # Reformat to ignore case errors
-        character = argument[0].lower()
-        dmg = argument[1].lower()
-        dmg_type = argument[2].lower()
+        character = character.lower()
+        dmg = dmg.lower()
+        dmg_type = dmg_type.lower()
         # Results log the results of the damage taken.
         results = deal_pain(character, int(dmg), dmg_type)
         await ctx.send(results)
