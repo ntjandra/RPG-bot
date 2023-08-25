@@ -11,8 +11,19 @@ from grammar import sentence
 
 # Load environment variables
 load_dotenv()
-client = commands.Bot(command_prefix='!')
 
+
+"""
+Define Client (Bot) Parameters
+Intents are permissions the bot should have. Err on the side of less.
+Client is used to define the bot and configure it's event listeners.
+Tree stores the commands to send over to the Discord shortcut.
+Notes: Use mentions, /, and ! as the prefixes. Intents are now required in the latest version.
+"""
+intents = discord.Intents.default()
+intents.members = True
+intents.message_content = True
+client = commands.Bot(command_prefix=commands.when_mentioned_or('!'), intents=intents)
 # Generate the structure for saves.
 if not os.path.exists('saves'):
     os.makedirs('saves')
@@ -21,22 +32,36 @@ if not os.path.exists('saves'):
 @client.event
 async def on_ready():
     """
-    Event To When Bot Is Ready
+    Returns when the bot is ready to accept inputs.
     """
-    print('ready')
-
+    print("ready")
 
 client.remove_command('help')
 
 
-@client.command()
-async def help(ctx, *argument):
+@client.hybrid_command(description="Queue up Discord slash commands sync. Make take up to an hour.")
+async def sync(ctx):
+    """
+    Queue up Discord slash commands sync. Make take up to an hour.
+    Optional: Fill in Sync with your server. guild=discord.Object(id={os.getenv('DISCORD_TOKEN')})
+    """
+    synced = await client.tree.sync()
+    log = f'{str(len(synced))} Commands Synced'
+    print(log)
+    await ctx.send(log)
+    return
+
+
+@client.hybrid_command(name='help', description="Lists help info for commands.")
+async def help(ctx, bot_command: str = None):
     """
     Help Command
     """
     print('help')
-    if not argument:
-        await ctx.send("```Commands: \n"
+    if ctx.author == client.user:
+        return
+    if not bot_command:
+        await ctx.send(content="```Commands: \n"
                        "\n !info <characterName> Returns a character stats."
                        "\n !cast <characterName> <spellName> Cast a spell using a character's stats."
                        "\n !pain <characterName> <damage> <damageType> Calculate damage taken."
@@ -44,31 +69,31 @@ async def help(ctx, *argument):
                        "\n !save <characterName> <?slot> Save current info to load later."
                        "\n !load <characterName> <?slot> Loads state from file.```")
         return
-    if argument[0] == "info" and len(argument) == 1:
-        await ctx.send("```Supply a character name and get back it's character sheet."
+    if bot_command == "info":
+        await ctx.send(content="```Supply a character name and get back it's character sheet."
                        "Defaults combat stats only. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !info Maria```")
         return
-    if argument[0] == "cast" and len(argument) == 1:
+    if bot_command == "cast":
         await ctx.send("```Cast a spell using a character's stats for scaling and additional effects. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !cast Maria basic```")
         return
-    if argument[0] == "pain" and len(argument) == 1:
+    if bot_command == "pain":
         await ctx.send("```Calculate damage taken by a character. Requires character, damage number, and damage type. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !pain Maria 200 magic```")
         return
-    if argument[0] == "save" and len(argument) == 1:
+    if bot_command == "save":
         await ctx.send("```Save a character's sheet. Max 3 save slots. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !save Maria 1```")
-    if argument[0] == "load" and len(argument) == 1:
+    if bot_command == "load":
         await ctx.send("```Load a character's sheet updating the values. Defaults to option 1. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
@@ -76,20 +101,18 @@ async def help(ctx, *argument):
     return
 
 
-@client.command()
-async def info(ctx, *argument):
+@client.hybrid_command(description="Fetches the character's sheet and displays it in an embed message.")
+async def info(ctx, character: str):
     """
-    Info Command About a Character
+    Command for Character info
     """
     if ctx.author == client.user:
         return
-    if not argument:
-        await ctx.send(
-            "Error: Please specify a Character\n"
-        )
-    if len(argument) == 1:
+    if not character:
+        await ctx.send("Error: Please specify a Character\n")
+    else:
         # Create embed
-        character = argument[0].lower()
+        character = character.lower()
         sheet = discord.Embed(title=sentence(f'{character} Sheet'), description="Combat Info")
 
         for field, val in characters[character].items():
@@ -100,23 +123,23 @@ async def info(ctx, *argument):
     return
 
 
-@client.command()
-async def cast(ctx, *argument):
+@client.hybrid_command(description="Casts a skill using a character's stats for calculating raw damage.")
+async def cast(ctx, character, skill):
     """
     Cast Command
     """
     if ctx.author == client.user:
         return
-    if not argument:
+    if not character or not skill:
         await ctx.send("Error: Supply a character and spell name\n")
         return
-    if len(argument) == 2:
+    else:
         # Cast the Spell
         # TODO: Error handling when Spell is not found.
 
         # Reformat to ignore case errors
-        character = argument[0].lower()
-        skill = argument[1].lower()
+        character = character.lower()
+        skill = skill.lower()
 
         message = sentence(f'{character} casted {skill}')
         await ctx.send(message)
@@ -127,71 +150,75 @@ async def cast(ctx, *argument):
     return
 
 
-@client.command()
-async def pain(ctx, *argument):
+@client.hybrid_command(description="Calculates damage taken for a character based on their resistances.")
+async def pain(ctx, character=None, dmg=None, dmg_type=None):
     """
     Pain Command
     """
     if ctx.author == client.user:
         return
-    if not argument:
+    if not (character and dmg and dmg_type):
         await ctx.send("Error: Supply a character, damage number, and damage type \n")
         return
-    if len(argument) == 3:
+    else:
         # Reformat to ignore case errors
-        character = argument[0].lower()
-        dmg = argument[1].lower()
-        dmg_type = argument[2].lower()
+        character = character.lower()
+        dmg = dmg.lower()
+        dmg_type = dmg_type.lower()
         # Results log the results of the damage taken.
         results = deal_pain(character, int(dmg), dmg_type)
         await ctx.send(results)
     return
 
 
-@client.command()
-async def save(ctx, *argument):
+@client.hybrid_command()
+async def save(ctx, character, slot=1):
     """
     Save Command
     """
-    if not argument:
+    if ctx.author == client.user:
+        return
+    if not character:
         await ctx.send("Error: Supply a character to save on. \n")
         return
     # Choose a specific character to save data on.
-    if len(argument) == 2:
+    else:
         await ctx.send("Saving... \n")
-        character = argument[0].lower()
-        message = sentence(save_player(character, argument[1]))
+        character = character.lower()
+        message = sentence(save_player(character, slot))
         await ctx.send("Save Complete \n")
         await ctx.send(message)
     return
 
 
-@client.command()
-async def load(ctx, *argument):
+@client.hybrid_command()
+async def load(ctx, character, slot=1):
     """
     Load Command
     """
-    if not argument:
-        await ctx.send("Error: Supply a character and number from 1 to 3 \n")
+    if ctx.author == client.user:
+        return
+    if not character:
+        await ctx.send("Error: Supply a character slot to load from \n")
         return
     # Choose a specific character to load data for.
-    if len(argument) == 2:
+    else:
         await ctx.send("Loading... \n")
-        character = argument[0].lower()
-        message = sentence(load_player(character, argument[1]))
-        await ctx.send("Load Complete \n")
+        character = character.lower()
+        message = sentence(load_player(character, slot))
         await ctx.send(message)
     return
 
 
-@client.command()
-async def quicksave(ctx, *argument):
+@client.hybrid_command()
+async def quicksave(ctx):
     """
     Quicksave Command
     """
-    if not argument:
-        message = init_party()
-        await ctx.send(message)
+    if ctx.author == client.user:
+        return
+    message = init_party()
+    await ctx.send(message)
     return
 
 
