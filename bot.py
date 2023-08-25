@@ -3,7 +3,6 @@ Main RBG BOT File
 """
 import os
 import discord
-from discord import app_commands
 from discord.ext import commands
 from dotenv import load_dotenv
 from abilities import cast_ability, deal_pain
@@ -23,7 +22,7 @@ Notes: Use mentions, /, and ! as the prefixes. Intents are now required in the l
 """
 intents = discord.Intents.default()
 intents.members = True
-intents.message_content = True 
+intents.message_content = True
 client = commands.Bot(command_prefix=commands.when_mentioned_or('!'), intents=intents)
 # Generate the structure for saves.
 if not os.path.exists('saves'):
@@ -33,7 +32,7 @@ if not os.path.exists('saves'):
 @client.event
 async def on_ready():
     """
-    Returns when the bot is ready to accept inputs. 
+    Returns when the bot is ready to accept inputs.
     """
     print("ready")
 
@@ -54,8 +53,7 @@ async def sync(ctx):
 
 
 @client.hybrid_command(name='help', description="Lists help info for commands.")
-async def help(ctx, bot_command: str=None):
-    # TODO: Refactor for app_commands.choices 
+async def help(ctx, bot_command: str = None):
     """
     Help Command
     """
@@ -123,6 +121,7 @@ async def info(ctx, character: str):
         # sheet.set_thumbnail(ctx.author.avatar_url)
         await ctx.send(embed=sheet)
     return
+
 
 @client.hybrid_command(description="Casts a skill using a character's stats for calculating raw damage.")
 async def cast(ctx, character, skill):
