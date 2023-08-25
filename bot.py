@@ -24,7 +24,7 @@ Notes: Use mentions, /, and ! as the prefixes. Intents are now required in the l
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True 
-client = commands.Bot(command_prefix=commands.when_mentioned_or('!','/'), intents=intents)
+client = commands.Bot(command_prefix=commands.when_mentioned_or('!'), intents=intents)
 # Generate the structure for saves.
 if not os.path.exists('saves'):
     os.makedirs('saves')
@@ -33,28 +33,40 @@ if not os.path.exists('saves'):
 @client.event
 async def on_ready():
     """
-    Bot Intializer: Set the slash commands and sync Commands to the Discord shortcut menu
-    If the tree isn't built it won't sync any commands.
+    Returns when the bot is ready to accept inputs. 
     """
-    synced = await client.tree.sync()
-    print(f'{str(len(synced))} Commands Synced')
+    print("ready")
 
 client.remove_command('help')
 
+
+@client.command()
+async def sync(ctx):
+    """
+    Queue up Discord slash commands sync. Make take up to an hour.
+    Optional: Fill in Sync with your server. guild=discord.Object(id={SERVER_ID}
+    """
+    synced = await client.tree.sync()
+    log = f'{str(len(synced))} Commands Synced'
+    print(log)
+    await ctx.send(log)
+    return
 
 @client.tree.command(name="shutdown", description="Turns off the bot.")
 async def shutdown(Interaction: discord.Interaction):
     await Interaction.response.send_message(content="Shutting Down")
     await client.close()
 
-@client.command()
-async def help(ctx, *argument):
+
+@client.tree.command(name='help', description="Lists help info for commands.")
+async def help(Interaction: discord.Interaction, bot_command: str="info"):
+    # TODO: Refactor for app_commands.choices 
     """
     Help Command
     """
     print('help')
-    if not argument:
-        await ctx.send("```Commands: \n"
+    if not bot_command:
+        await Interaction.response.send_message(content="```Commands: \n"
                        "\n !info <characterName> Returns a character stats."
                        "\n !cast <characterName> <spellName> Cast a spell using a character's stats."
                        "\n !pain <characterName> <damage> <damageType> Calculate damage taken."
@@ -62,32 +74,32 @@ async def help(ctx, *argument):
                        "\n !save <characterName> <?slot> Save current info to load later."
                        "\n !load <characterName> <?slot> Loads state from file.```")
         return
-    if argument[0] == "info" and len(argument) == 1:
-        await ctx.send("```Supply a character name and get back it's character sheet."
+    if bot_command == "info" and len(argument) == 1:
+        await Interaction.response.send_message(content="```Supply a character name and get back it's character sheet."
                        "Defaults combat stats only. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !info Maria```")
         return
-    if argument[0] == "cast" and len(argument) == 1:
-        await ctx.send("```Cast a spell using a character's stats for scaling and additional effects. \n"
+    if bot_command == "cast" and len(argument) == 1:
+        await Interaction.response.send_message(content="```Cast a spell using a character's stats for scaling and additional effects. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !cast Maria basic```")
         return
-    if argument[0] == "pain" and len(argument) == 1:
-        await ctx.send("```Calculate damage taken by a character. Requires character, damage number, and damage type. \n"
+    if bot_command == "pain" and len(argument) == 1:
+        await Interaction.response.send_message(content="```Calculate damage taken by a character. Requires character, damage number, and damage type. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !pain Maria 200 magic```")
         return
-    if argument[0] == "save" and len(argument) == 1:
-        await ctx.send("```Save a character's sheet. Max 3 save slots. \n"
+    if bot_command == "save" and len(argument) == 1:
+        await Interaction.response.send_message(content="```Save a character's sheet. Max 3 save slots. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !save Maria 1```")
-    if argument[0] == "load" and len(argument) == 1:
-        await ctx.send("```Load a character's sheet updating the values. Defaults to option 1. \n"
+    if bot_command == "load" and len(argument) == 1:
+        await Interaction.response.send_message(content="```Load a character's sheet updating the values. Defaults to option 1. \n"
                        "Usage: \n"
                        "    Lookup Characters: \n"
                        "    !load Maria 1```")
