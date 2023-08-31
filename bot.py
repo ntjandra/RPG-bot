@@ -106,6 +106,7 @@ async def help(ctx, bot_command: str = None):
 async def info(ctx, character: str, page: int = 1):
     """
     Command for Character info
+    TODO: Find a way to read image from local. 
     """
 
     if ctx.author == client.user:
@@ -115,16 +116,22 @@ async def info(ctx, character: str, page: int = 1):
     else:
         # Create list of embeds
         character = character.lower()
+        file = discord.File("screenshots/Landy.png", filename="Landy.png") # Required placeholder to maintain scope.
         sheet = [None for _ in range(0, MAX_PAGES+1)]
         for page_no in range(1, MAX_PAGES):
-            sheet[page_no] = discord.Embed(title=sentence(f'{character}'), description="Character Info")
+            sheet[page_no] = discord.Embed(title=sentence(f'{character}\'s Sheet'), description="Character Info")
             sheet[page_no].set_footer(text=f'Page {page_no}')
-            # sheet.set_thumbnail(ctx.author.avatar_url)
+            sheet[page_no].set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar)
+            if "icon" in characters[character]:
+                file = discord.File(f'screenshots/{character}.png', filename=f'{character}.png')
+                sheet[page_no].set_thumbnail(url=f'attachment://{character}.png')
         for field, val in characters[character].items():
             # Sort through pages
             sort_pages(sheet, field, val)
-            
-        message = await ctx.send(embed=sheet[page])
+        if "icon" in characters[character]:
+            message = await ctx.send(file=file, embed=sheet[page])
+        else:
+            message = await ctx.send(embed=sheet[page])
         # Update the message based on content and page.
         await paginate(client, ctx, message, sheet, page)
     return

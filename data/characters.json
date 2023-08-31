@@ -12,7 +12,8 @@
         "heal_shield_mult": 1.15,
         "spell_mult": 1.1,
         "weapon_mult": 1,
-        "dmg_resist": 0
+        "dmg_resist": 0,
+        "icon": "https://lh4.googleusercontent.com/Zi6xXTNekyWVzMHmICKMYO2v8_ACJsJV-AV2yXvLHCuqw1JRUCsOwvhE_3nlb8Sk1snIJyzaKeuJ-ALu60bFTSHo_yScu0LvDv4-RWgHbTIquAfjADQj4R7oiJXcuPWeCm0XqZMlDfg9yazYUMM=s2048"
     },
     "shai": {
         "level": 17,

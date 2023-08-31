@@ -11,8 +11,8 @@ A Constant list to match the data with game rules.
 RESOURCES_KEYS = ["level", "health", "alchemy", "devotion"]
 COMBAT_KEYS = ["weapon_power", "spell_power", "armor", "spell_resist", "shield"]
 MULTIPLIER_KEYS = ["heal_shield_mult", "spell_mult", "weapon_mult", "dmg_resist"]
+HIDDEN_KEYS = ["icon","url", "link"] # Metadata for sheet.
 MAX_PAGES = 5 # Because Pages start at 1, this should be 1 greater than usual.
-
 
 def sort_pages(embed, field, val):
         """
@@ -23,13 +23,13 @@ def sort_pages(embed, field, val):
         Page 4: Everything else (Misc. Character Specifics)
         """
         if field in RESOURCES_KEYS:
-            embed[1].add_field(name=sentence(field), value=val)
+            embed[1].add_field(name=sentence(field), value=val, inline=False)
         elif field in COMBAT_KEYS:
-            embed[2].add_field(name=sentence(field), value=val)
+            embed[2].add_field(name=sentence(field), value=val, inline=False)
         elif field in MULTIPLIER_KEYS:
-            embed[3].add_field(name=sentence(field), value=val)
-        else:
-            embed[4].add_field(name=sentence(field), value=val)
+            embed[3].add_field(name=sentence(field), value=val, inline=False)
+        elif field not in HIDDEN_KEYS:
+            embed[4].add_field(name=sentence(field), value=val, inline=True)
 
 
 async def paginate(client, ctx, message, embeds, page=1):
@@ -40,8 +40,9 @@ async def paginate(client, ctx, message, embeds, page=1):
     Message = Discord Message to update
     embeds = List of content for each page.
     page = starting page
+    Adjust the page, or close message to free up memory and spam.
     """
-    emojis = ["◀️", "▶️"]
+    emojis = ["◀️", "❎", "▶️"]
     for emoji in emojis:
         await message.add_reaction(emoji)
     while not client.is_closed():
@@ -53,7 +54,10 @@ async def paginate(client, ctx, message, embeds, page=1):
             )
             if react.emoji == emojis[0] and page > 1:
                 page -= 1
-            elif react.emoji == emojis[1] and page < len(embeds) - 2:
+            elif react.emoji == emojis[1]:
+                await message.delete()
+                break
+            elif react.emoji == emojis[2] and page < len(embeds) - 2:
                 page += 1
             await message.edit(embed=embeds[page])
         except TimeoutError as e:
