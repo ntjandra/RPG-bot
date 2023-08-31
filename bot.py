@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from abilities import cast_ability, deal_pain
 from data.import_data import init_party, save_player, load_player, characters
 from grammar import sentence
+from sheet import sort_pages, paginate, MAX_PAGES
 
 # Load environment variables
 load_dotenv()
@@ -62,7 +63,7 @@ async def help(ctx, bot_command: str = None):
         return
     if not bot_command:
         await ctx.send(content="```Commands: \n"
-                       "\n !info <characterName> Returns a character stats."
+                       "\n !info <characterName> <?page> Returns a character stats. Supports pagination."
                        "\n !cast <characterName> <spellName> Cast a spell using a character's stats."
                        "\n !pain <characterName> <damage> <damageType> Calculate damage taken."
                        "\n !help <command>  Displays detailed command info."
@@ -102,24 +103,37 @@ async def help(ctx, bot_command: str = None):
 
 
 @client.hybrid_command(description="Fetches the character's sheet and displays it in an embed message.")
-async def info(ctx, character: str):
+async def info(ctx, character: str, page: int = 1):
     """
     Command for Character info
+    Note: If characters.json has a icon field, then it will search for a local image under screenshots.
     """
+
     if ctx.author == client.user:
         return
     if not character:
         await ctx.send("Error: Please specify a Character\n")
     else:
-        # Create embed
+        # Create list of embeds
         character = character.lower()
-        sheet = discord.Embed(title=sentence(f'{character} Sheet'), description="Combat Info")
-
+        file = discord.File("screenshots/Landy.png", filename="Landy.png")  # Required placeholder to maintain scope.
+        sheet = [None for _ in range(0, MAX_PAGES+1)]
+        for page_no in range(1, MAX_PAGES):
+            sheet[page_no] = discord.Embed(title=sentence(f'{character}\'s Sheet'), description="Character Info")
+            sheet[page_no].set_footer(text=f'Page {page_no}')
+            sheet[page_no].set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar)
+            if "icon" in characters[character]:
+                file = discord.File(f'screenshots/{character}.png', filename=f'{character}.png')
+                sheet[page_no].set_thumbnail(url=f'attachment://{character}.png')
         for field, val in characters[character].items():
-            sheet.add_field(name=sentence(field), value=val)
-
-        # sheet.set_thumbnail(ctx.author.avatar_url)
-        await ctx.send(embed=sheet)
+            # Sort through pages
+            sort_pages(sheet, field, val)
+        if "icon" in characters[character]:
+            message = await ctx.send(file=file, embed=sheet[page])
+        else:
+            message = await ctx.send(embed=sheet[page])
+        # Update the message based on content and page.
+        await paginate(client, ctx, message, sheet, page)
     return
 
 
