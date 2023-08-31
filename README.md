@@ -7,17 +7,22 @@ Basic features to speed up calculations and turns. Meant to interface with the c
 
 ### Bot Commands:
 ```
-!info <character> : shows the character sheet for a given character.
+!info <character> <?page> : shows the character sheet for a given character.
 !cast <character> <ability> : applies the effects of an ability.
-!help <command> : opens detailed help on the command and inputs.
+!pain <characterName> <damage> <damageType> : calculate damage taken from raw numbers."
+!save <characterName> <?slot> : Save current info to load later.
+!load <characterName> <?slot> : Loads state from file.
+!help <command> : opens detailed help for the command and inputs.
 ```
 
 ### Sheets
 The bot will use the default values in `/data`, as we progress through the campaign please remember to update your character's values and skills.
+Character images go under `/screenshots` and should be named as `name.png`.
 
 Supports:
 - characters
 - skills
+- images
 
 ## Contribute 
 Feel free to add your character specific functions inside the abilities.py. Please ask first before changing bot.py.
@@ -48,6 +53,5 @@ I'll update this in the future. Planning to use repl.it to host our Discord bot 
 This bot was intended to interface and speed up calculations during combat. Therefore, combat related abilities are prioritized (non-social checks). Altering values is a private atribute and may only be altered through skills or editing the .json file. In the future, I might add a overide. 
 
 ### TODOs
-- Import/Export sheets
-- More Skills supported
-- Clean up code for v0.1
+- Interaction commands.
+- Basic Out of Combat actions.

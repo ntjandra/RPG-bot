@@ -106,7 +106,7 @@ async def help(ctx, bot_command: str = None):
 async def info(ctx, character: str, page: int = 1):
     """
     Command for Character info
-    TODO: Find a way to read image from local. 
+    Note: If characters.json has a icon field, then it will search for a local image under screenshots.
     """
 
     if ctx.author == client.user:
