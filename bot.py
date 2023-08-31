@@ -116,7 +116,7 @@ async def info(ctx, character: str, page: int = 1):
     else:
         # Create list of embeds
         character = character.lower()
-        file = discord.File("screenshots/Landy.png", filename="Landy.png") # Required placeholder to maintain scope.
+        file = discord.File("screenshots/Landy.png", filename="Landy.png")  # Required placeholder to maintain scope.
         sheet = [None for _ in range(0, MAX_PAGES+1)]
         for page_no in range(1, MAX_PAGES):
             sheet[page_no] = discord.Embed(title=sentence(f'{character}\'s Sheet'), description="Character Info")
