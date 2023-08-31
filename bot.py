@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from abilities import cast_ability, deal_pain
 from data.import_data import init_party, save_player, load_player, characters
 from grammar import sentence
+from sheet import sort_pages, paginate, MAX_PAGES
 
 # Load environment variables
 load_dotenv()
@@ -62,7 +63,7 @@ async def help(ctx, bot_command: str = None):
         return
     if not bot_command:
         await ctx.send(content="```Commands: \n"
-                       "\n !info <characterName> Returns a character stats."
+                       "\n !info <characterName> <?page> Returns a character stats. Supports pagination."
                        "\n !cast <characterName> <spellName> Cast a spell using a character's stats."
                        "\n !pain <characterName> <damage> <damageType> Calculate damage taken."
                        "\n !help <command>  Displays detailed command info."
@@ -102,24 +103,30 @@ async def help(ctx, bot_command: str = None):
 
 
 @client.hybrid_command(description="Fetches the character's sheet and displays it in an embed message.")
-async def info(ctx, character: str):
+async def info(ctx, character: str, page: int = 1):
     """
     Command for Character info
     """
+
     if ctx.author == client.user:
         return
     if not character:
         await ctx.send("Error: Please specify a Character\n")
     else:
-        # Create embed
+        # Create list of embeds
         character = character.lower()
-        sheet = discord.Embed(title=sentence(f'{character} Sheet'), description="Combat Info")
-
+        sheet = [None for _ in range(0, MAX_PAGES+1)]
+        for page_no in range(1, MAX_PAGES):
+            sheet[page_no] = discord.Embed(title=sentence(f'{character}'), description="Character Info")
+            sheet[page_no].set_footer(text=f'Page {page_no}')
+            # sheet.set_thumbnail(ctx.author.avatar_url)
         for field, val in characters[character].items():
-            sheet.add_field(name=sentence(field), value=val)
-
-        # sheet.set_thumbnail(ctx.author.avatar_url)
-        await ctx.send(embed=sheet)
+            # Sort through pages
+            sort_pages(sheet, field, val)
+            
+        message = await ctx.send(embed=sheet[page])
+        # Update the message based on content and page.
+        await paginate(client, ctx, message, sheet, page)
     return
 
 
