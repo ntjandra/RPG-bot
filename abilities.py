@@ -105,8 +105,9 @@ def level_scale(level):
 def level_infinite_scale(level):
     """
     Level scale done recusively to apply for all values. This scales differently from the prior!
-    Pattern: Starts at a base of 0.2, then for every 10 levels increases the multiplier by 0.5, adding in the max of previous layers.
-    This new level cap eases the scaling rate of growth by capping multiplier values at 10.
+    Pattern: Starts at a base of 0.2, then for every 10 levels increases the multiplier by 0.05.
+    This adds only the max of previous layers instead of the difference since reaching the layer.
+    Meant to ease the scaling rate of growth by capping multiplier values at 10.
     
     The old leveling resulted in crazy growth "for each level" after 20, which broke balance.
     Before: Level 21: 1 + (0.2 * 10) + (0.25 * (21 - 10)) + (0.3 * (21 - 20)) = 6.05
