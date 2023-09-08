@@ -102,6 +102,32 @@ def level_scale(level):
         return 1 + (0.2 * level)
 
 
+def level_infinite_scale(level):
+    """
+    Level scale done recusively to apply for all values. This scales differently from the prior!
+    Pattern: Starts at a base of 0.2, then for every 10 levels increases the multiplier by 0.5, adding in the max of previous layers.
+    This new level cap eases the scaling rate of growth by capping multiplier values at 10.
+    
+    The old leveling resulted in crazy growth "for each level" after 20, which broke balance.
+    Before: Level 21: 1 + (0.2 * 10) + (0.25 * (21 - 10)) + (0.3 * (21 - 20)) = 6.05
+    After: Level 21: 1 + (0.2 * 10) + (0.25 * 10) + (0.3 * (1)) = 5.8
+ 
+    TODO: Can speed up calculation by storing the known maximum of layers.
+    """
+    depth = (level-1) // 10  # Subtract 1 so digits [0-9] are a layer.
+    digit = level % 10
+    modifier = round(0.2 + (0.05 * depth), 2)
+
+    # Treat zero as ten
+    if digit == 0:
+        digit = 10
+    if level <= 10:
+        return 1 + (modifier * digit)
+    else:
+        # Fetch remainder for the top layer, and repeat from peak of prior layers.
+        return (digit * modifier) + level_infinite_scale((depth) * 10)
+ 
+
 def transform(character):
     """
     Transform function for characters. Changes certain character's base stats.
