@@ -102,7 +102,7 @@ def level_scale(level):
         return 1 + (0.2 * level)
 
 
-def level_infinite_scale(level):
+def level_new_scale(level):
     """
     Level scale done recusively to apply for all values. This scales differently from the prior!
     Pattern: Starts at a base of 0.2, then for every 10 levels increases the multiplier by 0.05.
@@ -126,7 +126,7 @@ def level_infinite_scale(level):
         return 1 + (modifier * digit)
     else:
         # Fetch remainder for the top layer, and repeat from peak of prior layers.
-        return (digit * modifier) + level_infinite_scale((depth) * 10)
+        return (digit * modifier) + level_new_scale((depth) * 10)
  
 
 def transform(character):
