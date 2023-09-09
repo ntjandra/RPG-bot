@@ -109,22 +109,23 @@ def level_scale(level, memo={}):
     Pattern: Starts at a base of 0.2, then for every 10 levels increases the multiplier by 0.05.
     This adds only the max of previous layers instead of the difference since reaching the layer.
     Meant to ease the scaling rate of growth by capping multiplier values at 10.
-    
+
     The old leveling resulted in crazy growth "for each level" after 20, which broke balance.
     Before: Level 21: 1 + (0.2 * 21) + (0.25 * (21 - 10)) + (0.3 * (21 - 20)) = 6.05
     After: Level 21: 1 + (0.2 * 10) + (0.25 * 10) + (0.3 * (1)) = 5.8
- 
-    Optimization: Added Memoization to avoid duplicate recalculations. 
+
+    Optimization: Added Memoization to avoid duplicate recalculations.
     Limits: Handles up to Level 9970, due to python recusive depth limits.
     """
     if (level in memo):
-        return memo[level] 
+        return memo[level]
 
     depth = (level-1) // 10  # Subtract 1 so digits [0-9] are a layer.
 
     digit = level % 10
     # Treat zero as ten
-    if level % 10 == 0: digit = 10 
+    if digit == 0:
+        digit = 10
     modifier = round(0.2 + (0.05 * depth), 2)
 
     if level <= 10:
@@ -134,7 +135,7 @@ def level_scale(level, memo={}):
         res = (digit * modifier) + level_scale(depth * 10)
     memo[level] = res
     return res
- 
+
 
 def transform(character):
     """
