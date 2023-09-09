@@ -111,7 +111,7 @@ def level_scale(level, memo={}):
     Meant to ease the scaling rate of growth by capping multiplier values at 10.
     
     The old leveling resulted in crazy growth "for each level" after 20, which broke balance.
-    Before: Level 21: 1 + (0.2 * 10) + (0.25 * (21 - 10)) + (0.3 * (21 - 20)) = 6.05
+    Before: Level 21: 1 + (0.2 * 21) + (0.25 * (21 - 10)) + (0.3 * (21 - 20)) = 6.05
     After: Level 21: 1 + (0.2 * 10) + (0.25 * 10) + (0.3 * (1)) = 5.8
  
     Optimization: Added Memoization to avoid duplicate recalculations. 
@@ -150,6 +150,7 @@ def transform(character):
         else:
             player["spell_resist"] = characters["shai_human"]["spell_resist"]
             player["weapon_power"] = characters["shai_human"]["weapon_power"]
+            player["is_transformed"] = False
             return "Shai'Rei returned to human form."
 
 
